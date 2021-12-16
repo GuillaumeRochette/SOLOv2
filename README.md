@@ -17,12 +17,12 @@ SOLOv2
 - For a video:
 
 ```bash
-bash run_video.docker.sh /path/to/input/video.mp4 /path/to/output/masks.mp4 "0"
+bash run_video.docker.sh /path/to/input/video.mp4 /path/to/output/masks.mp4 "my_list_of_label_indexes"
 ```
 - For a directory of images:
 
 ```bash
-bash run_dir.docker.sh /path/to/image/dir /path/to/mask/dir "0"
+bash run_dir.docker.sh /path/to/image/dir /path/to/mask/dir "my_list_of_label_indexes"
 ```
 
 ### Alternative: Run within your Local Environment
