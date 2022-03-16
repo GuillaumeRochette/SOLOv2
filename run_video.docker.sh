@@ -2,12 +2,15 @@
 set -e
 
 src_video=$(realpath $1)
-dst_video=$(realpath $2)
+dst_video=$2
 labels=${3:-""}
 
 src_video_dir=$(dirname $src_video)
 dst_video_dir=$(dirname $dst_video)
 mkdir -p $dst_video_dir
+
+dst_video=$(realpath $dst_video)
+dst_video_dir=$(realpath $dst_video_dir)
 
 cmd="src_video=$src_video && \
 dst_video=$dst_video && \

@@ -2,12 +2,15 @@
 set -e
 
 src_dir=$(realpath $1)
-dst_dir=$(realpath $2)
+dst_dir=$2
 labels=${3:-""}
 
 src_dir_dir=$(dirname $src_dir)
 dst_dir_dir=$(dirname $dst_dir)
 mkdir -p $dst_dir_dir
+
+dst_dir=$(realpath $dst_dir)
+dst_dir_dir=$(realpath $dst_dir_dir)
 
 cmd="src_dir=$src_dir && \
 dst_dir=$dst_dir && \
