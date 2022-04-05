@@ -16,17 +16,17 @@ import torch
 
 from SOLO.mmdet.apis import inference_detector, init_detector
 
+from process import f, g
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--src_dir", type=Path, required=True)
     parser.add_argument("--dst_dir", type=Path, required=True)
     parser.add_argument("--cfg", type=Path, required=True)
     parser.add_argument("--ckpt", type=Path, required=True)
-    parser.add_argument("--labels", nargs="*", default=None, type=int)
     parser.add_argument("--threshold", type=float, default=0.5)
-    parser.add_argument("--aggregate", dest="aggregate", action="store_true")
-    parser.add_argument("--no-aggregate", dest="aggregate", action="store_false")
-    parser.set_defaults(aggregate=True)
+    parser.add_argument("--labels", nargs="*", default=None, type=int)
+    parser.add_argument("--policy", type=int, default="aggregate")
     parser.add_argument("--src_extension", type=str, default="")
     args = parser.parse_args()
 
@@ -34,45 +34,40 @@ if __name__ == "__main__":
     assert args.cfg.exists()
     assert args.ckpt.exists()
 
-    if not args.labels:
-        args.labels = None
-
-    print(args.src_dir)
-    print(args.dst_dir)
-    print(args.cfg)
-    print(args.ckpt)
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = init_detector(str(args.cfg), str(args.ckpt), device=device)
+
+    if not args.labels:
+        args.labels = None
+    else:
+        args.labels = torch.tensor(args.labels, device=device)
+
+    print(args.src_video)
+    print(args.dst_video)
+    print(args.cfg)
+    print(args.ckpt)
 
     src_images = sorted(args.src_dir.glob(f"*{args.src_extension}"))
     print(src_images)
 
-    if args.dst_dir.exists():
-        shutil.rmtree(args.dst_dir)
-    args.dst_dir.mkdir(parents=True)
+    args.dst_dir.mkdir(parents=True, exist_ok=True)
 
     for i, src_image in enumerate(tqdm(src_images)):
         image = cv2.imread(f"{src_image}")
         (result,) = inference_detector(model, image)
         if result is not None:
             masks, labels, scores = result
-            n, h, w = masks.shape
-            c = scores > args.threshold
-            if args.labels is not None:
-                l = torch.zeros_like(c)
-                for label in args.labels:
-                    l |= labels == label
-                c &= l
-            masks = masks[c[..., None, None].expand(n, h, w)].reshape(-1, h, w)
-            m, h, w = masks.shape
-            if m > 0:
-                if args.aggregate:
-                    mask = masks.sum(dim=-3, dtype=torch.bool)
-                else:
-                    mask = masks[masks.sum(dim=[-2, -1]).argmax()]
-            else:
-                mask = torch.zeros(h, w, dtype=torch.bool)
+            masks = f(
+                masks=masks,
+                labels=labels,
+                scores=scores,
+                threshold=args.threshold,
+                retained_labels=args.labels,
+            )
+            mask = g(
+                masks=masks,
+                policy=args.policy
+            )
         else:
             h, w, _ = image.shape
             mask = torch.zeros(h, w, dtype=torch.bool)
