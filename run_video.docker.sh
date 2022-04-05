@@ -3,7 +3,8 @@ set -e
 
 src_video=$(realpath $1)
 dst_video=$2
-labels=${3:-""}
+policy=${3:-"aggregate"}
+labels=${4:-""}
 
 src_video_dir=$(dirname $src_video)
 dst_video_dir=$(dirname $dst_video)
@@ -14,6 +15,7 @@ dst_video_dir=$(realpath $dst_video_dir)
 
 cmd="src_video=$src_video && \
 dst_video=$dst_video && \
+policy=$policy && \
 labels=$labels && "
 cmd+='SOLOv2_ROOT=$WRKSPCE/SOLOv2 && \
 git clone https://github.com/GuillaumeRochette/SOLOv2.git $SOLOv2_ROOT && \
@@ -23,6 +25,7 @@ exec python run_video.py \
     --dst_video $dst_video \
     --cfg $CFG_SOLOv2_X101_DCN_3x \
     --ckpt $CKPT_SOLOv2_X101_DCN_3x \
+    --policy $policy \
     --labels $labels'
 
 echo $cmd
