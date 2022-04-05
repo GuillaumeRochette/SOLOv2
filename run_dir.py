@@ -26,7 +26,7 @@ if __name__ == "__main__":
     parser.add_argument("--ckpt", type=Path, required=True)
     parser.add_argument("--threshold", type=float, default=0.5)
     parser.add_argument("--labels", nargs="*", default=None, type=int)
-    parser.add_argument("--policy", type=int, default="aggregate")
+    parser.add_argument("--policy", type=str, default="aggregate")
     parser.add_argument("--src_extension", type=str, default="")
     args = parser.parse_args()
 

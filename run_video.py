@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument("--ckpt", type=Path, required=True)
     parser.add_argument("--threshold", type=float, default=0.5)
     parser.add_argument("--labels", nargs="*", type=int, default=None)
-    parser.add_argument("--policy", type=int, default="aggregate")
+    parser.add_argument("--policy", type=str, default="aggregate")
     args = parser.parse_args()
 
     assert args.src_video.exists()
