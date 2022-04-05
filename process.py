@@ -34,7 +34,7 @@ def g(masks: Tensor, policy: str):
         elif policy in ["left", "right", "top", "bottom", "center"]:
             x, y = torch.zeros(m, device=masks.device), torch.zeros(m, device=masks.device)
             for i in range(m):
-                y[i], x[i] = torch.argwhere(masks[i]).float().mean(dim=0)
+                y[i], x[i] = torch.nonzero(masks[i]).float().mean(dim=0)
             if policy == "left":
                 i = x.argmin()
             elif policy == "right":
